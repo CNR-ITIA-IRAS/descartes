@@ -90,7 +90,7 @@ bool MoveitStateAdapter::initialize(robot_model::RobotModelConstPtr robot_model,
   robot_state_->setToDefaultValues();
   planning_scene_.reset(new planning_scene::PlanningScene(robot_model));
   joint_group_ = robot_model_ptr_->getJointModelGroup(group_name);
-
+  
   // Assign robot frames
   group_name_ = group_name;
   tool_frame_ = tcp_frame;

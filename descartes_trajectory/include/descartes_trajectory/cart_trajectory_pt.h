@@ -34,6 +34,7 @@ typedef boost::shared_ptr<kinematic_constraints::OrientationConstraint> Orientat
 
 namespace descartes_trajectory
 {
+  
 /**@brief Description of a per-cartesian-axis tolerance.  This tolerance is not meant
   to be used directly but rather used as a common base for positional/orientation
   tolerances.
@@ -310,7 +311,7 @@ public:
   }
 
 protected:
-  bool computeCartesianPoses(EigenSTL::vector_Affine3d &poses) const;
+  virtual bool computeCartesianPoses(EigenSTL::vector_Affine3d &poses) const;
 
 protected:
   descartes_core::Frame tool_base_; /**<@brief Fixed transform from wrist/tool_plate to tool base. */
@@ -321,6 +322,10 @@ protected:
   double pos_increment_;    /**<@brief Sampling discretization in cartesian directions. */
   double orient_increment_; /**<@brief Sampling discretization in angular orientation. */
 };
+
+
+EigenSTL::vector_Affine3d uniform(const TolerancedFrame &frame, const double orient_increment,
+                                  const double pos_increment);
 
 } /* namespace descartes_trajectory */
 

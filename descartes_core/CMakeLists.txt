@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(descartes_core)
 
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++11 -funroll-loops -Wall -Ofast)
+set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS
   moveit_core

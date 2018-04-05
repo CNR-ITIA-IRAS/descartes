@@ -69,7 +69,8 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getAllIK(const Eigen::Affine3d&
 {
   joint_poses.clear();
   const auto& solver = joint_group_->getSolverInstance();
-
+  
+  
   // Transform input pose
   Eigen::Affine3d tool_pose = world_to_base_.frame_inv * pose * tool0_to_tip_.frame;
 
@@ -139,9 +140,18 @@ bool descartes_moveit::IkFastMoveitStateAdapter::computeIKFastTransforms()
 {
   // look up the IKFast base and tool frame
   ros::NodeHandle nh;
+  
+//   robot_state_->setToDefaultValues();
   std::string ikfast_base_frame, ikfast_tool_frame;
-  nh.param<std::string>("ikfast_base_frame", ikfast_base_frame, default_base_frame);
-  nh.param<std::string>("ikfast_tool_frame", ikfast_tool_frame, default_tool_frame);
+  if (!nh.param<std::string>(group_name_+"/ikfast_base_frame", ikfast_base_frame, default_base_frame))
+  {
+    ROS_WARN("%s not defined, used %s TODO %s",(group_name_+"/ikfast_base_frame").c_str(),default_base_frame.c_str(),ikfast_base_frame.c_str());
+  };
+  if (!nh.param<std::string>(group_name_+"/ikfast_tool_frame", ikfast_tool_frame, default_tool_frame))
+  {
+    ROS_WARN("%s not defined, used %s TODO %s",(group_name_+"/ikfast_tool_frame").c_str(),default_tool_frame.c_str(),ikfast_tool_frame.c_str());
+  };
+  
 
   if (!robot_state_->knowsFrameTransform(ikfast_base_frame))
   {
@@ -157,12 +167,14 @@ bool descartes_moveit::IkFastMoveitStateAdapter::computeIKFastTransforms()
     return false;
   }
 
-  // calculate frames
+  // calculate frames 
   tool0_to_tip_ = descartes_core::Frame(robot_state_->getFrameTransform(tool_frame_).inverse() *
                                         robot_state_->getFrameTransform(ikfast_tool_frame));
 
   world_to_base_ = descartes_core::Frame(world_to_root_.frame * robot_state_->getFrameTransform(ikfast_base_frame));
 
+
+  
   logInform("IkFastMoveitStateAdapter: initialized with IKFast tool frame '%s' and base frame '%s'.",
             ikfast_tool_frame.c_str(), ikfast_base_frame.c_str());
   return true;
