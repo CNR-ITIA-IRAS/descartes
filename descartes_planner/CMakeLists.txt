@@ -20,12 +20,16 @@ find_package(OpenMP)
 if (OPENMP_FOUND)
   message(STATUS "Descartes will use OpenMP")
   set(OpenMP_FLAGS ${OpenMP_CXX_FLAGS})
+else()
+  message(STATUS "Descartes will not use OpenMP")
 endif()
 
 # Eigen 3.2 (Wily) only provides EIGEN3_INCLUDE_DIR, not EIGEN3_INCLUDE_DIRS
 if(NOT EIGEN3_INCLUDE_DIRS)
   set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif()
+
+
 
 ###################################
 ## catkin specific configuration ##
