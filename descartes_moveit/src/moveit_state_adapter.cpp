@@ -27,7 +27,7 @@
 #include <ros/assert.h>
 #include <sstream>
 
-const static int SAMPLE_ITERATIONS = 10;
+const static int SAMPLE_ITERATIONS = 80;
 
 namespace
 {

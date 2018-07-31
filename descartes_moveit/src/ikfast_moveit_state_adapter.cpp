@@ -145,11 +145,11 @@ bool descartes_moveit::IkFastMoveitStateAdapter::computeIKFastTransforms()
   std::string ikfast_base_frame, ikfast_tool_frame;
   if (!nh.param<std::string>(group_name_+"/ikfast_base_frame", ikfast_base_frame, default_base_frame))
   {
-    ROS_WARN("%s not defined, used %s TODO %s",(group_name_+"/ikfast_base_frame").c_str(),default_base_frame.c_str(),ikfast_base_frame.c_str());
+    ROS_WARN("%s not defined, used %s TODO %s",(nh.getNamespace()+"/"+group_name_+"/ikfast_base_frame").c_str(),default_base_frame.c_str(),ikfast_base_frame.c_str());
   };
   if (!nh.param<std::string>(group_name_+"/ikfast_tool_frame", ikfast_tool_frame, default_tool_frame))
   {
-    ROS_WARN("%s not defined, used %s TODO %s",(group_name_+"/ikfast_tool_frame").c_str(),default_tool_frame.c_str(),ikfast_tool_frame.c_str());
+    ROS_WARN("%s not defined, used %s TODO %s",(nh.getNamespace()+"/"+group_name_+"/ikfast_tool_frame").c_str(),default_tool_frame.c_str(),ikfast_tool_frame.c_str());
   };
   
 
