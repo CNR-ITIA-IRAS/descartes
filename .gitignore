@@ -30,3 +30,6 @@ devel/
 # temp files
 *~
 
+#kdev4
+*.kdev4
+kdev4/
