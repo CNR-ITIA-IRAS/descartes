@@ -16,6 +16,9 @@
  * limitations under the License.
  */
 
+#include <random>
+#include <algorithm>
+
 #include "descartes_moveit/ikfast_moveit_state_adapter.h"
 
 #include <eigen_conversions/eigen_msg.h>
@@ -23,6 +26,7 @@
 
 const static std::string default_base_frame = "base_link";
 const static std::string default_tool_frame = "tool0";
+const int    n_random_seed = 500;
 
 // Compute the 'joint distance' between two poses
 static double distance(const std::vector<double>& a, const std::vector<double>& b)
@@ -79,20 +83,36 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getAllIK(const Eigen::Affine3d&
   tf::poseEigenToMsg(tool_pose, geometry_pose);
   std::vector<geometry_msgs::Pose> poses = { geometry_pose };
 
-  std::vector<double> dummy_seed(getDOF(), 0.0);
-  std::vector<std::vector<double>> joint_results;
-  kinematics::KinematicsResult result;
-  kinematics::KinematicsQueryOptions options;  // defaults are reasonable as of Indigo
-
-  if (!solver->getPositionIK(poses, dummy_seed, joint_results, result, options))
+  std::vector<std::vector<double>> seed_states = seed_states_;
+  if( seed_states.empty() )
   {
-    return false;
+    std::random_device rnd_device;
+    std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
+    std::uniform_real_distribution<> dist {-M_PI/2.0, M_PI/2.0};
+      
+    for( int i=0; i<n_random_seed; i++)
+    {
+      std::vector<double> seed ( getDOF(),0.0 );
+      std::generate(std::begin(seed), std::end(seed), [&dist, &mersenne_engine](){ return dist(mersenne_engine); });
+      seed_states.push_back(seed);
+    }
   }
-
-  for (auto& sol : joint_results)
+  
+  bool at_least_one_exist = false;
+  for( const auto & seed_state : seed_states )
   {
-    if (isValid(sol))
-      joint_poses.push_back(std::move(sol));
+    std::vector<std::vector<double>> joint_results;
+    kinematics::KinematicsResult result;
+    kinematics::KinematicsQueryOptions options;  // defaults are reasonable as of Indigo
+    at_least_one_exist |= solver->getPositionIK(poses, seed_state, joint_results, result, options);
+    
+    for (auto& sol : joint_results)
+    {
+      if (isValid(sol))
+      {
+        joint_poses.push_back(std::move(sol));
+      }
+    } 
   }
 
   return joint_poses.size() > 0;

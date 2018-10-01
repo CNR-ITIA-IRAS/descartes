@@ -102,7 +102,7 @@ bool MoveitStateAdapter::initialize(robot_model::RobotModelConstPtr robot_model,
     ROS_ERROR("%s: Joint group '%s' does not exist in robot model", __FUNCTION__, group_name_.c_str());
     std::stringstream msg;
     msg << "Possible group names: " << robot_state_->getRobotModel()->getJointModelGroupNames();
-    ROS_ERROR(msg.str().c_str());
+    ROS_ERROR("%s",msg.str().c_str());
     return false;
   }
 
@@ -193,14 +193,14 @@ bool MoveitStateAdapter::getAllIK(const Eigen::Affine3d& pose, std::vector<std::
       {
         std::stringstream msg;
         msg << "Found *first* solution on " << sample_iter << " iteration, joint: " << joint_pose;
-        ROS_DEBUG(msg.str().c_str());
+        ROS_DEBUG("%s",msg.str().c_str());
         joint_poses.push_back(joint_pose);
       }
       else
       {
         std::stringstream msg;
         msg << "Found *potential* solution on " << sample_iter << " iteration, joint: " << joint_pose;
-        ROS_DEBUG(msg.str().c_str());
+        ROS_DEBUG("%s",msg.str().c_str());
 
         std::vector<std::vector<double> >::iterator joint_pose_it;
         bool match_found = false;
@@ -217,7 +217,7 @@ bool MoveitStateAdapter::getAllIK(const Eigen::Affine3d& pose, std::vector<std::
         {
           std::stringstream msg;
           msg << "Found *new* solution on " << sample_iter << " iteration, joint: " << joint_pose;
-          ROS_DEBUG(msg.str().c_str());
+          ROS_DEBUG("%s", msg.str().c_str());
           joint_poses.push_back(joint_pose);
         }
       }
@@ -314,7 +314,7 @@ bool MoveitStateAdapter::isValidMove(const double* from_joint_pose,
                                      const double* to_joint_pose, double dt) const
 {
 
-  for (std::size_t i = 0; i < getDOF(); ++i)
+  for (int i = 0; i < getDOF(); ++i)
   {
     double dtheta = std::abs(from_joint_pose[i] - to_joint_pose[i]);
     double max_dtheta = dt * velocity_limits_[i];
