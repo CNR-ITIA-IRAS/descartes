@@ -19,6 +19,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <console_bridge/console.h>
 #include <boost/shared_ptr.hpp>
 #include <Eigen/Core>
 
