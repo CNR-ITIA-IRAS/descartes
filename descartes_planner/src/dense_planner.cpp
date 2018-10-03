@@ -154,6 +154,7 @@ bool DensePlanner::planPath(const std::vector<descartes_core::TrajectoryPtPtr>& 
   }
   else
   {
+    ROS_ERROR("unable to insert graph, IK not available");
     error_code_ = descartes_core::PlannerError::IK_NOT_AVAILABLE;
   }
 

@@ -153,24 +153,32 @@ bool MoveitStateAdapter::getIK(const Eigen::Affine3d& pose, std::vector<double>&
 
   // transform to group base
   Eigen::Affine3d tool_pose = world_to_root_.frame * pose;
-
-  if (robot_state_->setFromIK(joint_group_, tool_pose, tool_frame_))
+  
+  try 
   {
-    robot_state_->copyJointGroupPositions(group_name_, joint_pose);
-    if (!isValid(joint_pose))
+    if (robot_state_->setFromIK(joint_group_, tool_pose, tool_frame_))
     {
-      ROS_DEBUG_STREAM("Robot joint pose is invalid");
+      robot_state_->copyJointGroupPositions(group_name_, joint_pose);
+      if (!isValid(joint_pose))
+      {
+        ROS_DEBUG_STREAM("Robot joint pose is invalid");
+      }
+      else
+      {
+        rtn = true;
+      }
     }
     else
     {
-      rtn = true;
+      rtn = false;
     }
   }
-  else
+  catch (std::exception& e)
   {
-    rtn = false;
+    ROS_ERROR("somethings strange: %s",e.what());
+    return false;
   }
-
+  
   return rtn;
 }
 

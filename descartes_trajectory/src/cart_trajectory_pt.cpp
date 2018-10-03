@@ -344,6 +344,7 @@ bool CartTrajectoryPt::getClosestJointPose(const std::vector<double> &seed_state
             joint_pose = j;
           }
         }
+        return false;
       }
       else
       {
@@ -372,7 +373,6 @@ bool CartTrajectoryPt::getNominalJointPose(const std::vector<double> &seed_state
 void CartTrajectoryPt::getJointPoses(const RobotModel &model, std::vector<std::vector<double> > &joint_poses) const
 {
   joint_poses.clear();
-
   EigenSTL::vector_Affine3d poses;
   if (computeCartesianPoses(poses))
   {
@@ -380,6 +380,7 @@ void CartTrajectoryPt::getJointPoses(const RobotModel &model, std::vector<std::v
     for (const auto &pose : poses)
     {
       std::vector<std::vector<double> > local_joint_poses;
+      
       if (model.getAllIK(pose, local_joint_poses))
       {
         joint_poses.insert(joint_poses.end(), local_joint_poses.begin(), local_joint_poses.end());
