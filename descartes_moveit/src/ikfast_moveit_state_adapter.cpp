@@ -99,8 +99,10 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getAllIK(const Eigen::Affine3d&
   }
   
   bool at_least_one_exist = false;
+
   for( const auto & seed_state : seed_states )
   {
+    
     std::vector<std::vector<double>> joint_results;
     kinematics::KinematicsResult result;
     kinematics::KinematicsQueryOptions options;  // defaults are reasonable as of Indigo
@@ -112,7 +114,10 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getAllIK(const Eigen::Affine3d&
       {
         joint_poses.push_back(std::move(sol));
       }
-    } 
+    }
+    
+    break;
+    
   }
 
   return joint_poses.size() > 0;

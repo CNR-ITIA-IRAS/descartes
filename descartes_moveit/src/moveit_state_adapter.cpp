@@ -85,6 +85,8 @@ bool MoveitStateAdapter::initialize(const std::string& robot_description, const 
 bool MoveitStateAdapter::initialize(robot_model::RobotModelConstPtr robot_model, const std::string &group_name,
                                     const std::string &world_frame, const std::string &tcp_frame)
 {
+  
+  m_num_seeds=SAMPLE_ITERATIONS;
   robot_model_ptr_ = robot_model;
   robot_state_.reset(new moveit::core::RobotState(robot_model_ptr_));
   robot_state_->setToDefaultValues();
@@ -122,7 +124,7 @@ bool MoveitStateAdapter::initialize(robot_model::RobotModelConstPtr robot_model,
 
   if (seed_states_.empty())
   {
-    seed_states_ = seed::findRandomSeeds(*robot_state_, group_name_, SAMPLE_ITERATIONS);
+    seed_states_ = seed::findRandomSeeds(*robot_state_, group_name_, m_num_seeds);
     ROS_DEBUG("Generated %lu random seeds", static_cast<unsigned long>(seed_states_.size()));
   }
 
