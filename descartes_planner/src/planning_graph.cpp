@@ -50,11 +50,15 @@ bool PlanningGraph::insertGraph(const std::vector<TrajectoryPtPtr>& points)
 
   // generate solutions for this point
   std::vector<std::vector<std::vector<double>>> all_joint_sols;
+  
+  ros::Time ts=ros::Time::now();
   if (!calculateJointSolutions(points.data(), points.size(), all_joint_sols))
   {
     return false;
   }
-
+  ros::Time tf=ros::Time::now();
+  ROS_INFO("calculateJointSolutions in %f", (tf-ts).toSec());
+  
   // insert into graph as vertices
   graph_.resize(points.size());
   for (std::size_t i = 0; i < points.size(); ++i)
