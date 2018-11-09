@@ -386,6 +386,7 @@ void CartTrajectoryPt::getJointPoses(const RobotModel &model, std::vector<std::v
         joint_poses.insert(joint_poses.end(), local_joint_poses.begin(), local_joint_poses.end());
       }
     }
+    
   }
   else
   {
