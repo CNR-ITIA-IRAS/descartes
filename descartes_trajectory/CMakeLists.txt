@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(descartes_trajectory)
 
-add_compile_options(-std=c++11 -funroll-loops -Wall -Ofast)
+add_compile_options(-std=c++11 -Wall -Wextra)
+
+add_compile_options(-funroll-loops -Ofast)
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -26,11 +28,11 @@ catkin_package(
   INCLUDE_DIRS
     include
   LIBRARIES
-    descartes_trajectory
+    ${PROJECT_NAME}
   CATKIN_DEPENDS
-    roscpp
-    moveit_core
     descartes_core
+    moveit_core
+    roscpp
   DEPENDS
     Boost
     EIGEN3
@@ -46,14 +48,14 @@ include_directories(include
                     ${EIGEN3_INCLUDE_DIRS}
 )
 
-add_library(descartes_trajectory
+add_library(${PROJECT_NAME}
+            src/axial_symmetric_pt.cpp
             src/cart_trajectory_pt.cpp
             src/joint_trajectory_pt.cpp
             src/trajectory.cpp
-            src/axial_symmetric_pt.cpp
 )
 
-target_link_libraries(descartes_trajectory
+target_link_libraries(${PROJECT_NAME}
                       ${catkin_LIBRARIES}
 )
 
@@ -63,7 +65,7 @@ target_link_libraries(descartes_trajectory
 #############
 
 install(
-    TARGETS ${PROJECT_NAME} 
+    TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 
 install(
@@ -82,5 +84,5 @@ if(CATKIN_ENABLE_TESTING)
   )
   catkin_add_gtest(${PROJECT_NAME}_utest ${UTEST_SRC_FILES})
   target_compile_definitions(${PROJECT_NAME}_utest PUBLIC GTEST_USE_OWN_TR1_TUPLE=0)
-  target_link_libraries(${PROJECT_NAME}_utest descartes_trajectory)
+  target_link_libraries(${PROJECT_NAME}_utest ${PROJECT_NAME})
 endif()

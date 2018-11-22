@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 
-#include <random>
-#include <algorithm>
-
 #include "descartes_moveit/ikfast_moveit_state_adapter.h"
 
 #include <eigen_conversions/eigen_msg.h>
@@ -26,6 +23,23 @@
 
 const static std::string default_base_frame = "base_link";
 const static std::string default_tool_frame = "tool0";
+
+bool isEqual( const std::vector<double>& v1, const std::vector<double>& v2, const double tol = 1e-6 )
+{
+  return ( v1.size() == v2.size() ) 
+  && std::equal( v1.begin(), v1.end(), v2.begin(), [&tol]( const double v1i, const double v2i ) { return std::fabs( v1i-v2i) < tol; } );
+}
+
+bool isInList( const std::vector<double>& v, const std::vector< std::vector<double>> & list,  const double tol = 1e-6 )
+{
+  if( list.size() > 0 )
+  {
+    for( auto const & v2 : list )
+      if( isEqual(v,v2,tol) )
+        return true;
+  }
+  return false;
+}
 
 
 // Compute the 'joint distance' between two poses
@@ -73,8 +87,7 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getAllIK(const Eigen::Affine3d&
 {
   joint_poses.clear();
   const auto& solver = joint_group_->getSolverInstance();
-  
-  
+
   // Transform input pose
   Eigen::Affine3d tool_pose = world_to_base_.frame_inv * pose * tool0_to_tip_.frame;
 
@@ -86,38 +99,25 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getAllIK(const Eigen::Affine3d&
   std::vector<std::vector<double>> seed_states = seed_states_;
   if( seed_states.empty() )
   {
-    std::random_device rnd_device;
-    std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
-    std::uniform_real_distribution<> dist {-M_PI/2.0, M_PI/2.0};
-      
-    for( int i=0; i<m_num_seeds; i++)
-    {
-      std::vector<double> seed ( getDOF(),0.0 );
-      std::generate(std::begin(seed), std::end(seed), [&dist, &mersenne_engine](){ return dist(mersenne_engine); });
-      seed_states.push_back(seed);
-    }
+    std::vector<double> dummy_seed(getDOF(), 0.0);
+    seed_states.push_back( dummy_seed );
   }
-  
-  bool at_least_one_exist = false;
-
-  for( const auto & seed_state : seed_states )
-  {
     
+  for( const auto & seed_state : seed_states )
+  { 
     std::vector<std::vector<double>> joint_results;
     kinematics::KinematicsResult result;
     kinematics::KinematicsQueryOptions options;  // defaults are reasonable as of Indigo
-    at_least_one_exist |= solver->getPositionIK(poses, seed_state, joint_results, result, options);
-    
-    for (auto& sol : joint_results)
+    if( solver->getPositionIK(poses, seed_state, joint_results, result, options) )
     {
-      if (isValid(sol))
+      for (auto& sol : joint_results)
       {
-        joint_poses.push_back(std::move(sol));
+        if (isValid(sol) && !isInList( sol, joint_poses, 1e-6 ) )
+        {
+          joint_poses.push_back(std::move(sol));
+        }
       }
     }
-    
-    break;
-    
   }
 
   return joint_poses.size() > 0;
@@ -165,8 +165,6 @@ bool descartes_moveit::IkFastMoveitStateAdapter::computeIKFastTransforms()
 {
   // look up the IKFast base and tool frame
   ros::NodeHandle nh;
-  
-//   robot_state_->setToDefaultValues();
   std::string ikfast_base_frame, ikfast_tool_frame;
   if (!nh.param<std::string>(group_name_+"/ikfast_base_frame", ikfast_base_frame, default_base_frame))
   {
@@ -176,31 +174,28 @@ bool descartes_moveit::IkFastMoveitStateAdapter::computeIKFastTransforms()
   {
     ROS_WARN("%s not defined, used %s TODO %s",(nh.getNamespace()+"/"+group_name_+"/ikfast_tool_frame").c_str(),default_tool_frame.c_str(),ikfast_tool_frame.c_str());
   };
-  
 
   if (!robot_state_->knowsFrameTransform(ikfast_base_frame))
   {
-    ROS_ERROR("IkFastMoveitStateAdapter: Cannot find transformation to frame '%s' in group '%s'.",
+    CONSOLE_BRIDGE_logError("IkFastMoveitStateAdapter: Cannot find transformation to frame '%s' in group '%s'.",
              ikfast_base_frame.c_str(), group_name_.c_str());
     return false;
   }
 
   if (!robot_state_->knowsFrameTransform(ikfast_tool_frame))
   {
-    ROS_ERROR("IkFastMoveitStateAdapter: Cannot find transformation to frame '%s' in group '%s'.",
+    CONSOLE_BRIDGE_logError("IkFastMoveitStateAdapter: Cannot find transformation to frame '%s' in group '%s'.",
              ikfast_tool_frame.c_str(), group_name_.c_str());
     return false;
   }
 
-  // calculate frames 
+  // calculate frames
   tool0_to_tip_ = descartes_core::Frame(robot_state_->getFrameTransform(tool_frame_).inverse() *
                                         robot_state_->getFrameTransform(ikfast_tool_frame));
 
   world_to_base_ = descartes_core::Frame(world_to_root_.frame * robot_state_->getFrameTransform(ikfast_base_frame));
-  
 
-  
-  ROS_INFO("IkFastMoveitStateAdapter: initialized with IKFast tool frame '%s' and base frame '%s'.",
+  CONSOLE_BRIDGE_logInform("IkFastMoveitStateAdapter: initialized with IKFast tool frame '%s' and base frame '%s'.",
             ikfast_tool_frame.c_str(), ikfast_base_frame.c_str());
   return true;
 }

@@ -50,15 +50,11 @@ bool PlanningGraph::insertGraph(const std::vector<TrajectoryPtPtr>& points)
 
   // generate solutions for this point
   std::vector<std::vector<std::vector<double>>> all_joint_sols;
-  
-  ros::Time ts=ros::Time::now();
   if (!calculateJointSolutions(points.data(), points.size(), all_joint_sols))
   {
     return false;
   }
-  ros::Time tf=ros::Time::now();
-  ROS_INFO("calculateJointSolutions in %f", (tf-ts).toSec());
-  
+
   // insert into graph as vertices
   graph_.resize(points.size());
   for (std::size_t i = 0; i < points.size(); ++i)
@@ -182,6 +178,8 @@ bool PlanningGraph::getShortestPath(double& cost, std::list<JointTrajectoryPt>& 
     path.push_back(std::move(pt));
   }
 
+  ROS_INFO("Computed path of length %lu with cost %lf", path_idxs.size(), cost);
+
   return true;
 }
 
@@ -191,7 +189,7 @@ bool PlanningGraph::calculateJointSolutions(const TrajectoryPtPtr* points, const
   poses.resize(count);
   bool success = true;
 
-//   #pragma omp parallel for shared(success)
+  #pragma omp parallel for shared(success)
   for (std::size_t i = 0; i < count; ++i)
   {
     if (success)
@@ -250,7 +248,7 @@ void PlanningGraph::computeAndAssignEdges(const std::size_t start_idx, const std
   }
 
   graph_.assignEdges(start_idx, std::move(edges));
-  if (!b) ROS_DEBUG("No edges between user input points at index %lu and %lu", start_idx, end_idx);
+  if (!b) ROS_WARN("No edges between user input points at index %lu and %lu", start_idx, end_idx);
 }
 
 template<typename EdgeBuilder>

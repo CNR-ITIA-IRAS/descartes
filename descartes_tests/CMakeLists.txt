@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(descartes_tests)
 
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++11 -Wall -Wextra)
 
 find_package(catkin REQUIRED COMPONENTS
   descartes_moveit
@@ -70,7 +70,7 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(${PROJECT_NAME}_planner_utest ${PROJECT_NAME})
 
   # Moveit adapter unit tests
-  find_package(rostest)
+  find_package(rostest REQUIRED)
   add_rostest_gtest(${PROJECT_NAME}_moveit_utest
     test/moveit/launch/utest.launch
     test/moveit/utest.cpp

@@ -34,7 +34,6 @@ typedef boost::shared_ptr<kinematic_constraints::OrientationConstraint> Orientat
 
 namespace descartes_trajectory
 {
-  
 /**@brief Description of a per-cartesian-axis tolerance.  This tolerance is not meant
   to be used directly but rather used as a common base for positional/orientation
   tolerances.

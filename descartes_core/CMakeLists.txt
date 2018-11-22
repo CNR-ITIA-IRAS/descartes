@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(descartes_core)
 
-add_compile_options(-std=c++11 -funroll-loops -Wall -Ofast)
+add_compile_options(-std=c++11 -Wall -Wextra)
+
+# CMake options to increase the perfomance as needed
+add_compile_options(-funroll-loops -Ofast)
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(catkin REQUIRED COMPONENTS
+  cmake_modules
   moveit_core
   roscpp
-  cmake_modules
 )
 
 find_package(Boost REQUIRED)
@@ -22,10 +25,10 @@ catkin_package(
   INCLUDE_DIRS
     include
   LIBRARIES
-    descartes_core
+    ${PROJECT_NAME}
   CATKIN_DEPENDS
-    roscpp
     moveit_core
+    roscpp
   DEPENDS
     Boost
     EIGEN3
@@ -40,11 +43,11 @@ include_directories(include
                     ${EIGEN3_INCLUDE_DIRS}
 )
 
-add_library(descartes_core
+add_library(${PROJECT_NAME}
             src/trajectory_id.cpp
 )
 
-target_link_libraries(descartes_core
+target_link_libraries(${PROJECT_NAME}
                       ${catkin_LIBRARIES}
                       ${EIGEN3_LIBRARIES}
 )
@@ -54,7 +57,7 @@ target_link_libraries(descartes_core
 #############
 
 install(
-    TARGETS ${PROJECT_NAME} 
+    TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 
 install(
