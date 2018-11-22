@@ -26,7 +26,7 @@
 
 const static std::string default_base_frame = "base_link";
 const static std::string default_tool_frame = "tool0";
-const int    n_random_seed = 500;
+
 
 // Compute the 'joint distance' between two poses
 static double distance(const std::vector<double>& a, const std::vector<double>& b)
@@ -90,7 +90,7 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getAllIK(const Eigen::Affine3d&
     std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
     std::uniform_real_distribution<> dist {-M_PI/2.0, M_PI/2.0};
       
-    for( int i=0; i<n_random_seed; i++)
+    for( int i=0; i<m_num_seeds; i++)
     {
       std::vector<double> seed ( getDOF(),0.0 );
       std::generate(std::begin(seed), std::end(seed), [&dist, &mersenne_engine](){ return dist(mersenne_engine); });
