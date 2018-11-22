@@ -143,14 +143,12 @@ public:
   }
 
   virtual bool isValidMove(const double* s, const double* f, double dt) const = 0;
-  
+ 
 protected:
   RobotModel() : check_collisions_(false)
   {
   }
   bool check_collisions_;
-  
-  
 };
 
 }  // descartes_core
