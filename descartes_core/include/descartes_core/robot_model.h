@@ -143,15 +143,11 @@ public:
   }
 
   virtual bool isValidMove(const double* s, const double* f, double dt) const = 0;
-
-  
-  virtual void setSeedNumber(const unsigned int& num_seeds){ m_num_seeds=num_seeds; };
   
 protected:
   RobotModel() : check_collisions_(false)
   {
   }
-  unsigned int m_num_seeds;
   bool check_collisions_;
   
   
