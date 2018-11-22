@@ -148,6 +148,7 @@ protected:
   RobotModel() : check_collisions_(false)
   {
   }
+  
   bool check_collisions_;
 };
 
