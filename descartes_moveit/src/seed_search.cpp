@@ -44,7 +44,7 @@ bool doIK(moveit::core::RobotState& state, const moveit::core::JointModelGroup* 
   const static double IK_TIMEOUT = 0.01;
 
   state.setJointGroupPositions(group_name, seed);
-  if (!state.setFromIK(group, pose, tool, N_ATTEMPTS, IK_TIMEOUT))
+  if (!state.setFromIK(group, Eigen::Isometry3d(pose.matrix()), tool, N_ATTEMPTS, IK_TIMEOUT))
   {
     return false;
   }
