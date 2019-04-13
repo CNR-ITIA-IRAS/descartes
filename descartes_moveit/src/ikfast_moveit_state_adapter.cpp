@@ -145,10 +145,14 @@ bool descartes_moveit::IkFastMoveitStateAdapter::getFK(const std::vector<double>
   std::vector<geometry_msgs::Pose> output;
 
   if (!isValid(joint_pose))
+  {
     return false;
+  }
 
   if (!solver->getPositionFK(tip_frame, joint_pose, output))
+  {
     return false;
+  }
 
   tf::poseMsgToEigen(output[0], pose);  // pose in frame of IkFast base
   pose = world_to_base_.frame * pose * tool0_to_tip_.frame_inv;
